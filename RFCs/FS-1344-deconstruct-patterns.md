@@ -20,7 +20,7 @@ type Person(name: string, age: int) =
 let name, age = Person("Ada", 36)
 ```
 
-Unknown inputs still infer ordinary F# reference tuples. The feature adds no deferred constraint, SRTP mechanism, or new syntax.
+The feature adds no new syntax.
 
 # Motivation
 
@@ -87,11 +87,9 @@ This RFC does not add zero- or one-output patterns, named output subpatterns, pr
 
 # Changes to the F# spec
 
-- **Tuple patterns:** add the ordered selection rules above; keep `struct (...)` exclusive to struct tuples.
-- **Member lookup:** define candidate shape and synthetic-output overload resolution.
-- **Pattern compilation:** lower a selected pattern to one method call plus fresh outputs while preserving the runtime contract.
-- **Inference:** state that unresolved tuple patterns immediately retain current reference-tuple inference.
-- **Quotations:** use the existing out-parameter-call representation and reject unrepresentable byref cases.
+- **Tuple patterns and inference:** add the ordered selection in [Pattern selection](#pattern-selection).
+- **Member lookup and pattern compilation:** add the candidate and runtime rules above.
+- **Quotations:** use the contract in [Quotations and reflected definitions](#quotations-and-reflected-definitions).
 
 # Drawbacks
 
@@ -110,9 +108,7 @@ C# deconstruction and positional patterns use instance or extension `Deconstruct
 
 # Compatibility
 
-Existing tuple patterns over unresolved or tuple-typed inputs retain their current inference and lowering. The feature only makes previously invalid patterns over known non-tuple types valid. Compiled code contains ordinary method calls and locals, so it introduces no new metadata or runtime representation; older compilers reject the new source interpretation but can consume produced assemblies.
-
-A later library version can add a competing same-arity method and create ambiguity, as with ordinary overload and extension-method versioning. The feature should initially be gated by the corresponding preview language version.
+The ordered selection in [Pattern selection](#pattern-selection) supplies a new interpretation only where current tuple checking cannot apply. Compiled code contains ordinary method calls and locals, so older compilers reject the new source interpretation but can consume produced assemblies. A later library version can add a competing same-arity method and create ambiguity, as with ordinary overload and extension-method versioning. The feature should initially be gated by the corresponding preview language version.
 
 # Interop
 
