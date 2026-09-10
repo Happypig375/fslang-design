@@ -24,8 +24,6 @@ let kind: byte = 3
 let data: byte array = [0; 64; 128; 255]
 ```
 
-Elsewhere, current defaults and inference remain unchanged. The feature creates no literal constraint and does not infer backwards through bindings, pipelines, returned values, or operator operands.
-
 # Motivation
 
 At .NET API boundaries, F# callers must often restate an already known parameter type with numeric suffixes, array syntax, span conversion, or collection factories. Contextual construction removes that ceremony and can avoid an intermediate F# list while retaining compile-time numeric range checks.
@@ -36,7 +34,7 @@ The restricted contexts preserve local reasoning and existing inferred signature
 
 ## Context and ordering
 
-A target is **fully known** when no unresolved inference variable relevant to the conversion remains. The literal cannot itself determine a generic argument.
+A target is **fully known** when no unresolved inference variable relevant to the conversion remains. The literal cannot itself determine a generic argument. Outside the two entry points in the summary, current defaults and inference apply; no literal constraint or backwards inference is introduced.
 
 For a non-overloaded target, first check the expression using current F# rules, including [FS-1093](../FSharp-6.0/FS-1093-additional-conversions.md). Attempt contextual literal conversion only if that fails.
 
@@ -136,12 +134,11 @@ Diagnostics list the contextual target for each ambiguous candidate.
 
 # Changes to the F# spec
 
-- **Expression checking:** add contextual-literal mode at the two approved entry points and through the listed result-propagating forms; define it as a last-resort conversion.
+- **Expression checking and method application:** add the contextual mode, propagation boundary, and two-phase ordering in [Context and ordering](#context-and-ordering).
 - **Numeric literals:** add direct target parsing for the table above without changing lexical grammar.
-- **Collection expressions:** define the eligible bracket subset, targets, element checking, construction, ref safety, and quotation behavior.
-- **Method application resolution:** add Phase A and Phase B before contextual better-conversion comparisons.
+- **Collection expressions:** adopt the syntax, target, construction, ref-safety, and quotation contracts above.
 - **Inference:** add no constraint form, generalization rule, or inferred signature.
-- **FSharp.Compiler.Service:** record whether conversion was contextual and expose selected target, element type, overload, and construction members.
+- **FSharp.Compiler.Service:** expose the selected target, element type, overload, and construction members.
 
 # Drawbacks
 
@@ -162,7 +159,7 @@ C# has constant-expression numeric conversions, target-typed collection expressi
 
 # Compatibility
 
-The Phase-A rule preserves the interpretation and overload winner of existing valid calls; ordinary literals retain current defaults. The feature makes previously invalid annotated or call-site forms valid. It emits existing CLI constants, arrays, spans, constructors, and calls, so it adds no runtime representation or FSharp.Core dependency. Older compilers reject source relying on the conversion but can consume produced assemblies, subject to their target frameworks.
+The fallback ordering in [Context and ordering](#context-and-ordering) makes previously invalid annotated or call-site forms valid without changing an existing winner. Produced assemblies use existing CLI constants, arrays, spans, constructors, and calls, so older compilers can consume them, subject to their target frameworks, and no FSharp.Core dependency is added.
 
 A later overload can change or make ambiguous a call already relying on Phase B, as with other overload versioning. The feature should initially be gated by the corresponding preview language version.
 
