@@ -16,7 +16,7 @@ let text = "你好"B
 let path = @"C:\資料"B
 ```
 
-Both values have type `byte array`. Existing ASCII literals keep the same bytes and behavior.
+Both values have type `byte array`.
 
 # Motivation
 
@@ -97,11 +97,11 @@ C# `u8` literals validate and encode UTF-8 at compile time but return `ReadOnlyS
 
 # Compatibility
 
-The ASCII subset preserves source behavior, bytes, type, mutability, and allocation identity. New non-ASCII source is rejected or diagnosed by older compilers, while assemblies produced by a new compiler contain only ordinary `System.Byte[]` construction and remain consumable by older tools. No FSharp.Core or metadata change is required.
+This is a language-versioned source extension. Older compilers diagnose the newly accepted source, while produced assemblies contain only ordinary `System.Byte[]` construction and remain consumable by older tools. No FSharp.Core or metadata change is required.
 
 # Interop
 
-The result is an ordinary `System.Byte[]`. Its payload matches standard UTF-8 for the decoded scalar sequence; unlike C# `u8`, it is mutable, fresh, and has no hidden trailing null byte.
+The result is directly consumable as `System.Byte[]` by any CLI language.
 
 # Pragmatics
 
