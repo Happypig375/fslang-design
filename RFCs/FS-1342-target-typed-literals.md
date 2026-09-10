@@ -104,7 +104,7 @@ Source element and spread expressions are evaluated exactly once from left to ri
 
 A `CollectionBuilderAttribute` target follows the .NET collection-expression contract. Its named builder type must be a non-generic class or struct with exactly one accessible directly declared static method whose generic arity matches the target, whose only parameter is `ReadOnlySpan<E>`, and whose return converts by identity, reference, or boxing conversion to the target. `E` must be the target iteration type.
 
-A constructible target is created once, using an applicable `capacity: int` constructor when length is known and otherwise the parameterless constructor; selected `Add` calls then receive elements in order. Mutable interface targets use `List<T>`. Non-mutable listed interfaces use an existing or synthesized implementation with the observable read-only behavior required by the .NET collection-expression contract.
+A constructible target is created once, preferring an applicable `capacity: int` constructor when length is known and otherwise using the parameterless constructor; selected `Add` calls then receive elements in order. Mutable interface targets use `List<T>`. Non-mutable listed interfaces use an existing or synthesized implementation with the observable read-only behavior required by the .NET collection-expression contract.
 
 ### Arrays, spans, and escape scope
 
@@ -174,7 +174,7 @@ The numeric targets and collection protocols are standard CLI/.NET types and met
 
 ## Diagnostics and tooling
 
-Diagnostics distinguish unknown targets, numeric range or form errors, incompatible elements or spreads, invalid builders, Phase-B ambiguity, and byref escape violations. FSharp.Compiler.Service exposes the selected conversion and construction. Hover reports the contextual representation; navigation can target a builder; extraction refactorings preserve the necessary annotation.
+Diagnostics distinguish unknown targets, numeric range or form errors, incompatible elements or spreads, invalid builders, Phase-B ambiguity, and byref escape violations. Successful contextual conversion is silent by default; an optional warning, disabled by default, may flag a call-site numeric target different from its default or a call-site bracket expression constructing a non-list target. Explicit annotations do not warn, and existing FS-1093 warning behavior is unchanged. FSharp.Compiler.Service exposes the selected conversion and construction. Hover reports the contextual representation; navigation can target a builder; extraction refactorings preserve the necessary annotation.
 
 ## Performance and scaling
 
