@@ -21,8 +21,6 @@ let moveX (point: Point) =
     { point with X = 10 }
 ```
 
-A record class is cloned through its C# metadata contract; a struct is copied. Initializers then update the new value in lexical order.
-
 # Motivation
 
 C# records expose non-destructive mutation through `with`, including virtual cloning that preserves a derived runtime record. Reconstructing through a public constructor can lose hidden state or slice inheritance, while `<Clone>$` is not a normal source-level member.
@@ -89,12 +87,9 @@ This RFC does not add construction syntax, field-name-driven nominal inference, 
 
 # Changes to the F# spec
 
-- **Record expressions:** after current F# record checking fails, add nominal copy-and-update for an independently known eligible receiver.
-- **Metadata recognition:** define the `<Clone>$` predicate above.
-- **Initializers:** define eligible members, duplicate detection, init-only permission, and expected-type checking.
-- **Evaluation:** specify the common receiver/result/initializer algorithm and the class-versus-struct result initialization.
-- **Inference:** only the existing F# record interpretation may infer a type from labels.
-- **Quotations:** require the existing class-call and unboxed mutable-struct-copy representations described above.
+- **Record expressions and inference:** add the ordered nominal interpretation in [Interpretation and receiver type](#interpretation-and-receiver-type).
+- **Metadata and initializers:** add the receiver and member predicates above.
+- **Evaluation and quotations:** adopt the contracts in [Evaluation and lowering](#evaluation-and-lowering) and [Quotations and reflected definitions](#quotations-and-reflected-definitions).
 
 # Drawbacks
 
@@ -114,13 +109,11 @@ F# records and anonymous records already support copy-and-update. C# record clas
 
 # Compatibility
 
-Current F# record and anonymous-record updates keep their interpretation. The new branch only makes previously invalid expressions over eligible known receivers valid. Compiled code contains ordinary calls, casts, copies, and stores, so no FSharp.Core or metadata addition is required; older compilers reject the source but can consume produced assemblies.
-
-A library update can change eligibility or member writability through ordinary metadata versioning. The feature should initially be gated by the corresponding preview language version.
+Because the nominal interpretation is attempted only after existing F# record checking fails, it makes previously invalid expressions valid without reinterpreting current ones. Produced assemblies contain ordinary calls, casts, copies, and stores, so older compilers can consume them and no FSharp.Core or metadata addition is required. A library update can change eligibility or member writability through ordinary metadata versioning. The feature should initially be gated by the corresponding preview language version.
 
 # Interop
 
-The design follows CLI metadata and therefore supports C# record inheritance, covariant-return variations, C# record structs, ordinary eligible structs, and equivalent metadata from other .NET languages or generators.
+The feature consumes and emits only CLI metadata and operations; no wrapper or F#-specific protocol is introduced.
 
 # Pragmatics
 
