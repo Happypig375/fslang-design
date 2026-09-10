@@ -20,7 +20,7 @@ type s
 let elapsed: float64<s> = 0.5d<s>
 ```
 
-`float`, `double`, and `float64` denote the same CLI type. Unsuffixed floating-point literals keep their current type and behavior.
+Unsuffixed floating-point literals keep their current type and behavior.
 
 # Motivation
 
@@ -84,13 +84,11 @@ C# and Java use `d`/`D` for binary64 literals. Rust uses the fixed-width name an
 
 # Compatibility
 
-Previously valid source retains its meaning, including unsuffixed literals, `f`/`F`, `m`/`M`, hexadecimal integers, and `LF` bit patterns. Source using the new name or suffix is rejected by older compilers, but compiled signatures and constants use ordinary `System.Double`, so no new binary representation is introduced.
-
-Adding the automatically available name `float64` has the normal possibility of a source name collision; existing qualification and shadowing rules apply. The feature should initially be gated by the corresponding preview language version.
+Neither addition reinterprets an existing token or type. Older compilers reject source using the new spelling, while produced assemblies use the existing binary64 representation. Adding the automatically available name `float64` has the normal possibility of a source name collision; existing qualification and shadowing rules apply. The feature should initially be gated by the corresponding preview language version.
 
 # Interop
 
-Public signatures written with `float64` are emitted as `System.Double` and are indistinguishable from signatures written with `float` or `double`. Other CLI languages require no changes.
+No special interop handling is required.
 
 # Pragmatics
 
