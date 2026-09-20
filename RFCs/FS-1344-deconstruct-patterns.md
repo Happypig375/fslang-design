@@ -20,7 +20,7 @@ type Person(name: string, age: int) =
 let name, age = Person("Ada", 36)
 ```
 
-The feature adds no new syntax.
+The feature adds no new syntax. The unannotated `let` example is intended behavior; its checking order remains an [unresolved question](#unresolved-questions).
 
 # Motivation
 
@@ -39,7 +39,7 @@ The proposal lets an existing .NET decomposition contract participate directly i
 For an ordinary tuple pattern with at least two components, apply the first matching case:
 
 1. **Input shape unresolved:** constrain it to an F# reference tuple, as today. Do not defer or revisit this choice.
-2. **Known reference tuple:** use existing tuple semantics and arity checking.
+2. **Known tuple, reference or struct:** use existing tuple semantics and arity checking.
 3. **Known non-tuple type:** select a valid `Deconstruct` method with the pattern arity, then match its outputs against the component patterns.
 
 The explicit `struct (...)` form remains a struct-tuple pattern and never invokes `Deconstruct`. Component annotations do not help select a method; they are checked only after selection.
@@ -53,7 +53,7 @@ let show ((name, age): Person) = name     // Deconstruct is eligible
 
 A candidate must:
 
-- have compiled name `Deconstruct`;
+- have compiled name `Deconstruct` (provisional; see [Unresolved questions](#unresolved-questions));
 - be an accessible applicable instance or extension method;
 - return CLI `void`;
 - have exactly one `out` parameter per component, excluding an extension receiver.
@@ -108,11 +108,11 @@ C# deconstruction and positional patterns use instance or extension `Deconstruct
 
 # Compatibility
 
-The ordered selection in [Pattern selection](#pattern-selection) supplies a new interpretation only where current tuple checking cannot apply. Compiled code contains ordinary method calls and locals, so older compilers reject the new source interpretation but can consume produced assemblies. A later library version can add a competing same-arity method and create ambiguity, as with ordinary overload and extension-method versioning. The feature should initially be gated by the corresponding preview language version.
+The ordered selection in [Pattern selection](#pattern-selection) supplies a new interpretation only where current tuple checking cannot apply. Its application to unannotated `let` bindings must resolve the checking-order question below before source compatibility can be established for that case. Compiled code contains ordinary method calls and locals, so older compilers reject the new source interpretation but can consume produced assemblies. A later library version can add a competing same-arity method and create ambiguity, as with ordinary overload and extension-method versioning. The feature should initially be gated by the corresponding preview language version.
 
 # Interop
 
-The feature consumes the standard CLI shape used by C# records, hand-written methods, inherited virtual methods, and C# or F# extensions. It requires no FSharp.Core helper or F#-specific metadata.
+The feature consumes the standard CLI shape used by C# records, hand-written methods, and inherited virtual methods. Optional F# extension eligibility depends on the compiled-name decision below. It requires no FSharp.Core helper or F#-specific metadata.
 
 # Pragmatics
 
@@ -133,3 +133,6 @@ Not applicable.
 # Unresolved questions
 
 Zero/one-output syntax and named positional subpatterns require separate proposals.
+
+- For unannotated nonrecursive `let` bindings, which RHS type information is available before tuple fallback? Current checking starts with the pattern; the `Person` example needs RHS type information first, without losing ordinary tuple patterns' influence on RHS overload resolution.
+- Should ordinary `Deconstruct` lookup also require the compiled name `Deconstruct`? Unrenamed optional F# extensions emit `Type.Deconstruct`, so that additional filter excludes otherwise callable extensions.
