@@ -35,7 +35,6 @@ FSharp.Core adds:
 ```fsharp
 type float64 = System.Double
 
-[<MeasureAnnotatedAbbreviation>]
 type float64<[<Measure>] 'Measure> = float<'Measure>
 ```
 
