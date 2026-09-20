@@ -96,7 +96,14 @@ Existing list construction remains available through ordinary checking. Multidim
 
 Each target supplies one element type `T`. Expression elements are checked against `T`; a spread's iteration type must convert to `T`. Numeric and nested collection elements may themselves be contextual. The empty form requires a target that determines `T`.
 
-Source element and spread expressions are evaluated exactly once from left to right, before count queries or enumeration used to materialize the result.
+Source elements and `yield!` expressions are evaluated exactly once from left to right. Each `yield!` source is fully enumerated, including any required enumerator disposal, before the next element or `yield!` expression is evaluated. Counting, buffering, and capacity optimizations must preserve this order and its observable effects and exceptions.
+
+```fsharp
+let shared = [|0|]
+let mutate n = shared[0] <- n; shared
+let values: int array = [yield! mutate 1; yield! mutate 2]
+// [|1; 2|], not [|2; 2|]
+```
 
 ### Builders and constructible targets
 
