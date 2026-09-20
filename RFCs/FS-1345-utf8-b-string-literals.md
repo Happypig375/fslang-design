@@ -58,7 +58,7 @@ Explicit quotations and `[<ReflectedDefinition>]` represent the literal as an or
 
 All currently valid ASCII `B` literals are unchanged because ASCII maps identically to UTF-8.
 
-Under the new language version, a non-ASCII string that previously received the ASCII-range diagnostic is instead accepted when its decoded text is well formed. Code that suppressed the old diagnostic and relied on legacy one-byte output must use the older language version or explicit bytes to preserve that behavior.
+For the regular and verbatim forms above, the new language version accepts well-formed non-ASCII text that previously received the ASCII-range diagnostic. Code that suppressed the old diagnostic and relied on legacy one-byte output must use the older language version or explicit bytes to preserve that behavior.
 
 The byte-character form remains a single ASCII byte:
 
@@ -67,11 +67,11 @@ The byte-character form remains a single ASCII byte:
 'é'B // invalid: one character would require multiple UTF-8 bytes
 ```
 
-This RFC does not add `B` to interpolated or triple-quoted strings and does not change ordinary strings, format strings, `[<Literal>]` values, optional defaults, or constant patterns.
+Existing triple-quoted `B` literals such as `"""abc"""B` remain unchanged, as do ordinary strings, format strings, `[<Literal>]` values, optional defaults, and constant patterns.
 
 # Changes to the F# spec
 
-In **Lexical analysis / Strings and Characters**, retain the token grammar above but replace the ASCII-only semantic restriction with the decode, validation, and UTF-8 rules in this RFC. Keep `bytechar` ASCII-only.
+In **Lexical analysis / Strings and Characters**, retain the token grammar above but replace the ASCII-only semantic restriction for regular and verbatim byte strings with the decode, validation, and UTF-8 rules in this RFC. Keep `bytechar` ASCII-only.
 
 In **Simple constant expressions**, clarify that a byte-array string is an array-valued literal expression, not a CLI constant.
 
@@ -82,7 +82,7 @@ In **Code generation**, require a fresh array for each evaluation while permitti
 - `B` may have been understood as “ASCII” rather than “byte array”; documentation must explain the broader UTF-8 meaning.
 - Compile-time encoding removes encoder work but not the allocation required by fresh mutable-array semantics.
 - Escape values are Unicode text, not raw bytes, which may surprise code working with binary protocols.
-- Interpolated and triple-quoted byte strings remain unsupported.
+- Interpolated byte strings remain unsupported.
 
 # Alternatives
 
@@ -119,4 +119,4 @@ The encoding is independent of culture, locale, code page, and operating system.
 
 # Unresolved questions
 
-Whether interpolated or triple-quoted UTF-8 byte strings should be added is left to separate proposals.
+Whether to extend UTF-8 encoding to existing triple-quoted `B` literals or add interpolated byte strings is left to separate proposals.
